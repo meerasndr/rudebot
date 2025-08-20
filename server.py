@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
 from typing import List, Literal, Dict, Any
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from global_limit import global_bucket
 from pydantic import BaseModel, Field
 from openai import OpenAI
 
@@ -34,11 +35,21 @@ class ChatOut(BaseModel):
     text: str
     model: str
 
+async def global_rate_guard():
+    retry_after = await global_bucket.allow()
+    if retry_after is not None:
+        # Return 429 and a Retry-After header
+        raise HTTPException(
+            status_code=429,
+            detail="Global rate limit reached. Try again later.",
+            headers={"Retry-After": f"{int(retry_after)}"},
+        )
+
 @app.get("/healthz")
 def health():
     return {"ok": True}
 
-@app.post("/chat", response_model=ChatOut)
+@app.post("/chat", response_model=ChatOut, dependencies=[Depends(global_rate_guard)])
 def chat(inp: ChatIn):
     model_id = inp.model or os.getenv("OPENAI_FT_MODEL", "gpt-4.1-mini")
 
