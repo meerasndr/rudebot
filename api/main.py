@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from typing import List, Literal, Dict, Any
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from api.global_limit import global_bucket
+from global_limit import global_bucket
 from pydantic import BaseModel, Field
 from openai import OpenAI
 
