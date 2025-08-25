@@ -7,6 +7,7 @@ MODEL_ID = os.getenv("OPENAI_FT_MODEL", "gpt-4.1-mini")
 
 st.set_page_config(page_title="Rudebot", page_icon="🤖")
 st.title("Rudebot 🤖 — the delightfully unhelpful assistant")
+st.page_link("https://github.com/meerasndr/rudebot/tree/main")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []  # we add a system guard on the API side
